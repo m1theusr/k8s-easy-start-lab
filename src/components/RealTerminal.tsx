@@ -15,7 +15,6 @@ export const RealTerminal: React.FC<RealTerminalProps> = () => {
   const [fitAddon, setFitAddon] = useState<FitAddon | null>(null);
   const [containerStatus, setContainerStatus] = useState<'stopped' | 'starting' | 'running' | 'stopping'>('stopped');
   const [container, setContainer] = useState<any>(null);
-  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const docker = useRef(new Docker());
 
   useEffect(() => {
@@ -25,8 +24,7 @@ export const RealTerminal: React.FC<RealTerminalProps> = () => {
         theme: {
           background: '#000000',
           foreground: '#00ff00',
-          cursor: '#00ff00',
-          selection: '#ffffff20',
+          cursor: '#00ff00'
         },
         fontSize: 14,
         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -245,10 +243,10 @@ export const RealTerminal: React.FC<RealTerminalProps> = () => {
       </div>
 
       {/* Terminal */}
-      <Card className="bg-black border-gray-700 min-h-96">
+      <Card className="bg-black border-gray-700">
         <div 
           ref={terminalRef}
-          className="w-full h-96 p-2"
+          className="w-full h-96 p-2 overflow-auto"
           style={{ minHeight: '400px' }}
         />
       </Card>
