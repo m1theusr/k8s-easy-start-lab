@@ -1,11 +1,13 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { PlayCircle, BookOpen, Terminal, CheckCircle, Circle, Server, Network, Database } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { CheckCircle, Circle, ChevronDown, ChevronRight, Play, BookOpen, Terminal, Layers, Network, Database } from 'lucide-react';
 import { InteractiveTerminal } from './InteractiveTerminal';
+import { ThemeToggle } from './ThemeToggle';
 
 interface LessonStep {
   id: number;
@@ -71,7 +73,7 @@ const kubernetesLessons: LessonStep[] = [
   }
 ];
 
-export const KubernetesLearning: React.FC = () => {
+export const KubernetesLearning = () => {
   const [currentLesson, setCurrentLesson] = useState(0);
   const [lessons, setLessons] = useState(kubernetesLessons);
   const [showTerminal, setShowTerminal] = useState(false);
@@ -88,33 +90,29 @@ export const KubernetesLearning: React.FC = () => {
   const progressPercentage = (completedLessons / lessons.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       {/* Header */}
-      <div className="k8s-animated-bg text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Server className="w-12 h-12 mr-4" />
-            <h1 className="text-5xl font-bold">Aprenda Kubernetes</h1>
-          </div>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Um guia interativo e prático para dominar o Kubernetes do básico ao avançado
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-white text-blue-600 hover:bg-gray-100"
-              onClick={() => setShowTerminal(!showTerminal)}
-            >
-              <Terminal className="w-5 h-5 mr-2" />
-              {showTerminal ? 'Ocultar Terminal' : 'Abrir Terminal Interativo'}
-            </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
-              <BookOpen className="w-5 h-5 mr-2" />
-              Guia Completo
-            </Button>
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-kubernetes-blue rounded-lg flex items-center justify-center">
+                <Layers className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Aprenda Kubernetes</h1>
+                <p className="text-sm text-muted-foreground">Do básico ao avançado</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge variant="secondary" className="hidden sm:flex">
+                Progresso: {Math.round(progressPercentage)}%
+              </Badge>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="container mx-auto px-4 py-8">
         {/* Progress Section */}
