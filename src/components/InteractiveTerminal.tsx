@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,15 +148,15 @@ Conditions:
   return (
     <div className="space-y-4">
       {/* Container Status */}
-      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+      <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
         <div className="flex items-center">
           <Server className="w-5 h-5 mr-2" />
           <span className="text-sm font-medium">
             Container Status: 
             <span className={`ml-2 px-2 py-1 rounded text-xs ${
-              containerStatus === 'running' ? 'bg-green-100 text-green-700' :
-              containerStatus === 'starting' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
+              containerStatus === 'running' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+              containerStatus === 'starting' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+              'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
             }`}>
               {containerStatus === 'running' ? '🟢 Running' :
                containerStatus === 'starting' ? '🟡 Starting...' :
@@ -191,10 +190,10 @@ Conditions:
       </div>
 
       {/* Terminal */}
-      <Card className="terminal min-h-96 max-h-96 overflow-hidden">
+      <Card className="terminal min-h-96 max-h-96 overflow-hidden bg-black border-gray-700">
         <div 
           ref={terminalRef}
-          className="h-full p-4 overflow-y-auto font-mono text-sm"
+          className="h-full p-4 overflow-y-auto font-mono text-sm scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500"
         >
           {containerStatus === 'running' && (
             <>
@@ -223,7 +222,7 @@ Conditions:
                   className="bg-transparent border-none text-green-400 placeholder-gray-500 focus:ring-0 focus:outline-none flex-1"
                   style={{ boxShadow: 'none' }}
                 />
-                {isLoading && <span className="terminal-cursor ml-1">█</span>}
+                {isLoading && <span className="terminal-cursor ml-1 text-green-400">█</span>}
               </form>
             </>
           )}
@@ -251,7 +250,7 @@ Conditions:
       </Card>
       
       {containerStatus === 'running' && (
-        <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+        <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
           💡 <strong>Dica:</strong> Este é um terminal simulado para aprendizado. 
           Digite "help" para ver todos os comandos disponíveis ou experimente os comandos das lições acima.
         </div>
