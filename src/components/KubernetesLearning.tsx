@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { CheckCircle, Circle, ChevronDown, ChevronRight, Play, BookOpen, Terminal, Layers, Network, Database } from 'lucide-react';
+import { CheckCircle, Circle, ChevronDown, ChevronRight, Play, BookOpen, Terminal, Layers, Network, Database, Server, CirclePlay } from 'lucide-react';
 import { InteractiveTerminal } from './InteractiveTerminal';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -137,14 +138,14 @@ export const KubernetesLearning = () => {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Side - Lessons */}
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Lições Interativas</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-6">Lições Interativas</h2>
             
             {lessons.map((lesson, index) => (
               <Card 
                 key={lesson.id} 
                 className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
                   currentLesson === index ? 'ring-2 ring-kubernetes-blue shadow-lg' : ''
-                } ${lesson.completed ? 'bg-green-50 border-green-200' : ''}`}
+                } ${lesson.completed ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800' : ''}`}
                 onClick={() => setCurrentLesson(index)}
               >
                 <CardHeader>
@@ -153,7 +154,7 @@ export const KubernetesLearning = () => {
                       {lesson.completed ? (
                         <CheckCircle className="w-6 h-6 text-green-500 mr-3" />
                       ) : (
-                        <Circle className="w-6 h-6 text-gray-400 mr-3" />
+                        <Circle className="w-6 h-6 text-muted-foreground mr-3" />
                       )}
                       <div>
                         <CardTitle className="text-lg">{lesson.title}</CardTitle>
@@ -182,7 +183,7 @@ export const KubernetesLearning = () => {
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Explicação:</h4>
-                        <p className="text-gray-600">{lesson.explanation}</p>
+                        <p className="text-muted-foreground">{lesson.explanation}</p>
                       </div>
                       <div className="flex gap-2">
                         <Button 
@@ -190,7 +191,7 @@ export const KubernetesLearning = () => {
                           disabled={lesson.completed}
                           className="k8s-gradient"
                         >
-                          <PlayCircle className="w-4 h-4 mr-2" />
+                          <CirclePlay className="w-4 h-4 mr-2" />
                           {lesson.completed ? 'Concluída' : 'Marcar como Concluída'}
                         </Button>
                       </div>
@@ -218,15 +219,15 @@ export const KubernetesLearning = () => {
                   <InteractiveTerminal />
                 ) : (
                   <div className="text-center py-8">
-                    <Terminal className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600 mb-4">
+                    <Terminal className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground mb-4">
                       Clique no botão "Abrir Terminal Interativo" para começar a praticar
                     </p>
                     <Button 
                       onClick={() => setShowTerminal(true)}
                       className="k8s-gradient"
                     >
-                      <PlayCircle className="w-4 h-4 mr-2" />
+                      <CirclePlay className="w-4 h-4 mr-2" />
                       Iniciar Terminal
                     </Button>
                   </div>
@@ -245,18 +246,18 @@ export const KubernetesLearning = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center text-sm">
                   <Network className="w-4 h-4 mr-2 text-blue-500" />
-                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">kubectl get pods</span>
-                  <span className="ml-2 text-gray-600">- Listar pods</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get pods</span>
+                  <span className="ml-2 text-muted-foreground">- Listar pods</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Database className="w-4 h-4 mr-2 text-green-500" />
-                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">kubectl get services</span>
-                  <span className="ml-2 text-gray-600">- Listar serviços</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get services</span>
+                  <span className="ml-2 text-muted-foreground">- Listar serviços</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Server className="w-4 h-4 mr-2 text-purple-500" />
-                  <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">kubectl get nodes</span>
-                  <span className="ml-2 text-gray-600">- Listar nodes</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get nodes</span>
+                  <span className="ml-2 text-muted-foreground">- Listar nodes</span>
                 </div>
               </CardContent>
             </Card>
