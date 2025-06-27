@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				kubernetes: {
+					blue: 'hsl(var(--kubernetes-blue))',
+					'light-blue': 'hsl(var(--kubernetes-light-blue))',
+					'dark-blue': 'hsl(var(--kubernetes-dark-blue))',
+					green: 'hsl(var(--kubernetes-green))',
+					'light-green': 'hsl(var(--kubernetes-light-green))',
 				}
 			},
 			borderRadius: {
@@ -84,11 +92,17 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				gradient: {
+					'0%': { 'background-position': '0% 50%' },
+					'50%': { 'background-position': '100% 50%' },
+					'100%': { 'background-position': '0% 50%' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				gradient: 'gradient 15s ease infinite',
 			}
 		}
 	},

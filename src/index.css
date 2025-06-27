@@ -1,8 +1,7 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 
 @layer base {
   :root {
@@ -37,47 +36,39 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Kubernetes themed colors */
+    --kubernetes-blue: 214 88% 51%;
+    --kubernetes-light-blue: 214 88% 71%;
+    --kubernetes-dark-blue: 214 88% 31%;
+    --kubernetes-green: 142 71% 45%;
+    --kubernetes-light-green: 142 71% 65%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -100,4 +91,42 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Kubernetes themed gradients */
+.k8s-gradient {
+  background: linear-gradient(135deg, hsl(var(--kubernetes-blue)) 0%, hsl(var(--kubernetes-green)) 100%);
+}
+
+.k8s-gradient-light {
+  background: linear-gradient(135deg, hsl(var(--kubernetes-light-blue)) 0%, hsl(var(--kubernetes-light-green)) 100%);
+}
+
+/* Terminal styles */
+.terminal {
+  background: #1a1a1a;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+}
+
+.terminal-cursor {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Animated background */
+.k8s-animated-bg {
+  background: linear-gradient(-45deg, #326ce5, #00d4aa, #326ce5, #00d4aa);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
