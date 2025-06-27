@@ -1,13 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { CheckCircle, Circle, ChevronDown, ChevronRight, Play, BookOpen, Terminal, Layers, Network, Database, Server, CirclePlay } from 'lucide-react';
-import { InteractiveTerminal } from './InteractiveTerminal';
+import { CheckCircle, Circle, Play, BookOpen, Terminal, Layers, Network, Database, Server, CirclePlay } from 'lucide-react';
+import { RealTerminal } from './RealTerminal';
 import { ThemeToggle } from './ThemeToggle';
 
 interface LessonStep {
@@ -102,7 +99,7 @@ export const KubernetesLearning = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Aprenda Kubernetes</h1>
-                <p className="text-sm text-muted-foreground">Do básico ao avançado</p>
+                <p className="text-sm text-muted-foreground">Terminal Docker Real</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -202,33 +199,33 @@ export const KubernetesLearning = () => {
             ))}
           </div>
 
-          {/* Right Side - Interactive Terminal */}
+          {/* Right Side - Real Terminal */}
           <div className="lg:sticky lg:top-8">
             <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Terminal className="w-6 h-6 mr-2" />
-                  Terminal Interativo
+                  Terminal Docker Real
                 </CardTitle>
                 <CardDescription>
-                  Execute comandos Kubernetes em tempo real
+                  Container Ubuntu com kubectl e minikube
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {showTerminal ? (
-                  <InteractiveTerminal />
+                  <RealTerminal />
                 ) : (
                   <div className="text-center py-8">
                     <Terminal className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">
-                      Clique no botão "Abrir Terminal Interativo" para começar a praticar
+                      Inicie um container Docker real com Ubuntu, kubectl e minikube
                     </p>
                     <Button 
                       onClick={() => setShowTerminal(true)}
                       className="k8s-gradient"
                     >
                       <CirclePlay className="w-4 h-4 mr-2" />
-                      Iniciar Terminal
+                      Abrir Terminal Docker
                     </Button>
                   </div>
                 )}
@@ -240,19 +237,19 @@ export const KubernetesLearning = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <BookOpen className="w-5 h-5 mr-2" />
-                  Referência Rápida
+                  Comandos Kubernetes
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center text-sm">
                   <Network className="w-4 h-4 mr-2 text-blue-500" />
-                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get pods</span>
-                  <span className="ml-2 text-muted-foreground">- Listar pods</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">minikube start</span>
+                  <span className="ml-2 text-muted-foreground">- Iniciar cluster</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Database className="w-4 h-4 mr-2 text-green-500" />
-                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get services</span>
-                  <span className="ml-2 text-muted-foreground">- Listar serviços</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">kubectl get pods</span>
+                  <span className="ml-2 text-muted-foreground">- Listar pods</span>
                 </div>
                 <div className="flex items-center text-sm">
                   <Server className="w-4 h-4 mr-2 text-purple-500" />
