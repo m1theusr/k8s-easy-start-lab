@@ -1,0 +1,30 @@
+FROM ubuntu:22.04
+
+# Evitar prompts interativos
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Atualiza pacotes e instala dependências essenciais
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    apt-transport-https \
+    sudo \
+    vim \
+    git \
+    nano \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instala o kubectl (última versão estável)
+RUN curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm kubectl
+
+# Instala o minikube
+RUN curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+    && install -o root -g root -m 0755 minikube-linux-amd64 /usr/local/bin/minikube \
+    && rm minikube-linux-amd64
+
+# Define o shell padrão
+CMD ["bash"]

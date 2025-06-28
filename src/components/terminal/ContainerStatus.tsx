@@ -1,35 +1,78 @@
+import React, { useState, useEffect } from 'react';
+import { Server, Play, Square } from 'lucide-react';
+import { ContainerStatusType } from '@/hooks/useDockerContainer';
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Play, Server, Square } from 'lucide-react';
-
-type ContainerStatus = 'stopped' | 'starting' | 'running' | 'stopping';
+// Tempo de cooldown em milissegundos
+const BUTTON_COOLDOWN = 3000; // 3 segundos
 
 interface ContainerStatusProps {
-  containerStatus: ContainerStatus;
+  containerStatus: ContainerStatusType;
   onStartContainer: () => void;
   onStopContainer: () => void;
+  isTerminalReady: boolean;
 }
 
 export const ContainerStatus: React.FC<ContainerStatusProps> = ({
   containerStatus,
   onStartContainer,
-  onStopContainer
+  onStopContainer,
+  isTerminalReady
 }) => {
+  // Estado para controlar o cooldown dos botões
+  const [buttonCooldown, setButtonCooldown] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  
+  // Função para gerenciar o cooldown dos botões
+  const handleWithCooldown = (action: () => void) => {
+    if (buttonCooldown) return;
+    
+    // Executa a ação solicitada
+    action();
+    
+    // Ativa o cooldown
+    setButtonCooldown(true);
+    setCooldownRemaining(BUTTON_COOLDOWN);
+    
+    // Inicia contador visual regressivo
+    const interval = setInterval(() => {
+      setCooldownRemaining(prev => {
+        if (prev <= 1000) {
+          clearInterval(interval);
+          setButtonCooldown(false);
+          return 0;
+        }
+        return prev - 1000;
+      });
+    }, 1000);
+  };
+  
+  // Limpar o intervalo quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      setCooldownRemaining(0);
+      setButtonCooldown(false);
+    };
+  }, []);
   const getStatusColor = () => {
-    switch (containerStatus) {
+    switch (containerStatus.status) {
       case 'running': return 'bg-green-600 dark:bg-green-700 text-white';
       case 'starting': return 'bg-yellow-600 dark:bg-yellow-700 text-white';
+      case 'installing': return 'bg-blue-600 dark:bg-blue-700 text-white';
+      case 'ready': return 'bg-green-600 dark:bg-green-700 text-white';
       case 'stopping': return 'bg-orange-600 dark:bg-orange-700 text-white';
+      case 'error': return 'bg-red-600 dark:bg-red-700 text-white';
       default: return 'bg-gray-600 dark:bg-gray-700 text-white';
     }
   };
 
   const getStatusText = () => {
-    switch (containerStatus) {
+    switch (containerStatus.status) {
       case 'running': return '🟢 Rodando';
       case 'starting': return '🟡 Iniciando...';
+      case 'installing': return '🟡 Configurando...';
+      case 'ready': return '🟢 Pronto';
       case 'stopping': return '🟠 Parando...';
+      case 'error': return '❌ Erro: ' + (containerStatus.error || 'Desconhecido');
       default: return '🔴 Parado';
     }
   };
@@ -46,25 +89,31 @@ export const ContainerStatus: React.FC<ContainerStatusProps> = ({
         </span>
       </div>
       <div className="flex gap-2">
-        {containerStatus === 'stopped' && (
-          <Button 
-            onClick={onStartContainer}
-            size="sm"
-            className="bg-green-600 hover:bg-green-700 text-white"
+        {/* Se estiver parado ou com erro, mostra botão Iniciar */}
+        {(['none', 'stopped', 'error'].includes(containerStatus.status)) ? (
+          <button 
+            onClick={() => handleWithCooldown(onStartContainer)}
+            className={`bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm font-medium flex items-center
+              ${!isTerminalReady || buttonCooldown ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!isTerminalReady || buttonCooldown}
+            title={!isTerminalReady ? 'Aguardando terminal...' : 
+                  buttonCooldown ? `Aguarde ${Math.ceil(cooldownRemaining/1000)}s` : 'Iniciar container'}
           >
             <Play className="w-4 h-4 mr-1" />
-            Iniciar Container
-          </Button>
-        )}
-        {containerStatus === 'running' && (
-          <Button 
-            onClick={onStopContainer}
-            size="sm"
-            className="bg-red-600 hover:bg-red-700 text-white"
+            {buttonCooldown ? `Aguarde (${Math.ceil(cooldownRemaining/1000)}s)` : 'Iniciar'}
+          </button>
+        ) : (
+          /* Se estiver rodando, iniciando ou em qualquer outro estado, mostra botão Parar */
+          <button 
+            onClick={() => handleWithCooldown(onStopContainer)}
+            className={`bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm font-medium flex items-center
+              ${containerStatus.status === 'stopping' || buttonCooldown ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={containerStatus.status === 'stopping' || buttonCooldown}
+            title={buttonCooldown ? `Aguarde ${Math.ceil(cooldownRemaining/1000)}s` : 'Parar container'}
           >
             <Square className="w-4 h-4 mr-1" />
-            Parar Container
-          </Button>
+            {buttonCooldown ? `Aguarde (${Math.ceil(cooldownRemaining/1000)}s)` : 'Parar'}
+          </button>
         )}
       </div>
     </div>

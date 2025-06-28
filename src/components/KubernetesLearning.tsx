@@ -99,7 +99,7 @@ export const KubernetesLearning = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Aprenda Kubernetes</h1>
-                <p className="text-sm text-muted-foreground">Terminal Docker Real</p>
+                <p className="text-sm text-muted-foreground">Passo a Passo</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -205,7 +205,7 @@ export const KubernetesLearning = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Terminal className="w-6 h-6 mr-2" />
-                  Terminal Docker Real
+                  Terminal
                 </CardTitle>
                 <CardDescription>
                   Container Ubuntu com kubectl e minikube
@@ -221,7 +221,10 @@ export const KubernetesLearning = () => {
                       Inicie um container Docker real com Ubuntu, kubectl e minikube
                     </p>
                     <Button 
-                      onClick={() => setShowTerminal(true)}
+                      onClick={() => {
+                        console.log("Botão de abrir terminal clicado");
+                        setShowTerminal(true);
+                      }}
                       className="k8s-gradient"
                     >
                       <CirclePlay className="w-4 h-4 mr-2" />

@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
+# Aprenda Kubernetes - Passo a Passo 🚀
 
-## Project info
+Experimente um laboratório Kubernetes real, com terminal Docker Ubuntu, `kubectl` e `minikube`, tudo via navegador e com interface moderna, escura e responsiva.
 
-**URL**: https://lovable.dev/projects/43b4334d-1a33-4e2e-a1dc-83f1626723ea
+---
 
-## How can I edit this code?
+## 🖼️ Interface Visual
 
-There are several ways of editing your application.
+![alt text](public/image.png)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/43b4334d-1a33-4e2e-a1dc-83f1626723ea) and start prompting.
+## Recursos Principais
+- **Terminal Docker Real**: Use comandos reais do Ubuntu, kubectl e minikube em um container isolado.
+- **Passo a Passo Interativo**: Siga lições guiadas, execute comandos sugeridos e veja seu progresso.
+- **Modo escuro e visual moderno**: Interface inspirada em Shadcn UI, com terminal estilizado, feedback visual e responsividade.
+- **Ambiente persistente**: Cada usuário tem seu próprio container, que persiste por até 60 minutos mesmo após recarregar a página.
+- **Multiusuário**: Backend Node.js com Socket.io, Dockerode e controle de recursos.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## Como rodar localmente
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/seu-usuario/seu-repo.git
+   cd seu-repo
+   ```
+2. **Instale as dependências do backend:**
+   ```bash
+   cd backend
+   npm install
+   ```
+3. **Build da imagem Docker personalizada:**
+   ```bash
+   docker build -t ubuntu-k8s .
+   ```
+4. **Rode o backend:**
+   ```bash
+   node server.js
+   ```
+5. **Rode o frontend:**
+   ```bash
+   cd ../ # volte para a raiz do projeto
+   npm install
+   npm run dev
+   ```
+6. **Acesse no navegador:**
+   Abra [http://localhost:3000](http://localhost:3000)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Tecnologias
+- **Frontend**: React, xterm.js, socket.io-client, Shadcn UI
+- **Backend**: Node.js, Express, socket.io, dockerode
+- **Infra**: Docker, Ubuntu, kubectl, minikube
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Contribuição
+Pull requests são bem-vindos! Sinta-se à vontade para propor melhorias, novos passos ou integrações.
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/43b4334d-1a33-4e2e-a1dc-83f1626723ea) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Autor
+Desenvolvido por [Seu Nome Aqui]

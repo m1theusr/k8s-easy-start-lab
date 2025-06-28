@@ -1,153 +1,173 @@
-
-import { useRef, useState } from 'react';
-import Docker from 'dockerode';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Terminal } from 'xterm';
+import { io, Socket } from 'socket.io-client';
 
-type ContainerStatus = 'stopped' | 'starting' | 'running' | 'stopping';
+export type ContainerStatusType = {
+  status: 'none' | 'starting' | 'installing' | 'ready' | 'running' | 'stopping' | 'stopped' | 'error';
+  error?: string;
+};
 
-export const useDockerContainer = (terminal: Terminal | null) => {
-  const [containerStatus, setContainerStatus] = useState<ContainerStatus>('stopped');
-  const [container, setContainer] = useState<any>(null);
-  const docker = useRef(new Docker());
+export function useDockerContainer(terminal: Terminal | null) {
+  const socketRef = useRef<Socket | null>(null);
+  const [containerStatus, setContainerStatus] = useState<ContainerStatusType>({ status: 'none' });
+  const [isShellReady, setIsShellReady] = useState(false);
+  const [logs, setLogs] = useState<string[]>([]);
 
-  const setupKubernetes = async (container: any) => {
-    const setupCommands = [
-      'apt-get update',
-      'apt-get install -y curl wget apt-transport-https ca-certificates gnupg lsb-release',
-      'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"',
-      'chmod +x kubectl && mv kubectl /usr/local/bin/',
-      'curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64',
-      'chmod +x minikube && mv minikube /usr/local/bin/',
-      'apt-get install -y docker.io',
-      'echo "Setup completed! Use: minikube start --driver=docker --force" > /root/setup-complete.txt'
-    ];
-
-    for (const cmd of setupCommands) {
-      const exec = await container.exec({
-        Cmd: ['bash', '-c', cmd],
-        AttachStdout: true,
-        AttachStderr: true
-      });
-      await exec.start({});
-    }
-  };
-
-  const connectToContainer = async (container: any) => {
-    try {
-      // Create exec instance for interactive bash
-      const exec = await container.exec({
-        Cmd: ['bash'],
-        AttachStdin: true,
-        AttachStdout: true,
-        AttachStderr: true,
-        Tty: true
-      });
-
-      const stream = await exec.start({
-        hijack: true,
-        stdin: true
-      });
-
-      if (terminal) {
-        terminal.writeln('🐳 Conectado ao container Ubuntu com Kubernetes!');
-        terminal.writeln('📋 Setup concluído! Digite os comandos:');
-        terminal.writeln('   minikube start --driver=docker --force');
-        terminal.writeln('   kubectl version');
-        terminal.writeln('');
-
-        // Handle terminal input
-        terminal.onData((data) => {
-          stream.write(data);
-        });
-
-        // Handle container output
-        stream.on('data', (data: Buffer) => {
-          const text = data.toString();
-          terminal.write(text);
-        });
-
-        stream.on('end', () => {
-          terminal.writeln('\r\n🔌 Conexão com container encerrada');
-          setContainerStatus('stopped');
-        });
+  // Socket.io setup - configuração inicial
+  useEffect(() => {
+    if (!socketRef.current) {
+      // Gera ou recupera um ID persistente para o usuário
+      let persistentId = localStorage.getItem('k8s_lab_user_id');
+      if (!persistentId) {
+        persistentId = 'user_' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('k8s_lab_user_id', persistentId);
       }
 
-    } catch (error) {
-      console.error('Error connecting to container:', error);
-      if (terminal) {
-        terminal.writeln('\r\n❌ Erro ao conectar com container');
-      }
-    }
-  };
-
-  const createContainer = async () => {
-    try {
-      setContainerStatus('starting');
+      console.log('[FRONTEND] ID persistente:', persistentId);
       
-      // Create container with Ubuntu + kubectl + minikube
-      const containerConfig = {
-        Image: 'ubuntu:22.04',
-        Cmd: ['/bin/bash'],
-        Tty: true,
-        OpenStdin: true,
-        WorkingDir: '/root',
-        Env: [
-          'DEBIAN_FRONTEND=noninteractive',
-          'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-        ],
-        ExposedPorts: {
-          '8080/tcp': {},
-          '30000/tcp': {}
-        },
-        HostConfig: {
-          PortBindings: {
-            '8080/tcp': [{ HostPort: '8080' }],
-            '30000/tcp': [{ HostPort: '30000' }]
-          },
-          Privileged: true,
-          AutoRemove: true
-        }
-      };
+      // Conecta com ID persistente
+      const socket = io('http://localhost:3001', {
+        query: { persistentId }
+      });
+      socketRef.current = socket;
 
-      const newContainer = await docker.current.createContainer(containerConfig);
-      await newContainer.start();
-      setContainer(newContainer);
+      // Eventos básicos de conexão
+      socket.on('connect', () => {
+        console.log('[FRONTEND] Socket conectado com ID persistente:', persistentId);
+        // Verifica se já existe um container para este usuário
+        socket.emit('check-container');
+      });
 
-      // Execute setup commands
-      await setupKubernetes(newContainer);
+      socket.on('disconnect', () => {
+        setContainerStatus({ status: 'none' });
+        setIsShellReady(false);
+      });
 
-      setContainerStatus('running');
-      connectToContainer(newContainer);
+      // Status e logs do container
+      socket.on('container-status', (status: string) => {
+        console.log('[FRONTEND] Status atualizado:', status);
+        setContainerStatus({ status: status as any });
+      });
 
-    } catch (error) {
-      console.error('Error creating container:', error);
-      setContainerStatus('stopped');
-      if (terminal) {
-        terminal.writeln('\r\n❌ Erro ao criar container Docker');
-        terminal.writeln('Verifique se o Docker está rodando e acessível');
-      }
+      socket.on('container-error', (err: string) => {
+        console.log('[FRONTEND] Erro:', err);
+        setContainerStatus({ status: 'error', error: err });
+      });
+
+      socket.on('container-logs', (log: string) => {
+        setLogs((prevLogs) => [...prevLogs, log]);
+      });
     }
-  };
 
-  const stopContainer = async () => {
-    if (container) {
-      try {
-        setContainerStatus('stopping');
-        await container.stop();
-        setContainer(null);
-        setContainerStatus('stopped');
-        if (terminal) {
-          terminal.writeln('\r\n🛑 Container parado');
-        }
-      } catch (error) {
-        console.error('Error stopping container:', error);
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
       }
-    }
-  };
+    };
+  }, []);
+
+  // Gerenciamento de shell ready e preparação do terminal
+  useEffect(() => {
+    if (!socketRef.current || !terminal) return;
+
+    const handleShellReady = () => {
+      console.log('[FRONTEND] Container pronto, atualizando status para running');
+      // Explicitamente define o status como running quando recebe container-ready
+      setContainerStatus({ status: 'running' });
+      setIsShellReady(true);
+      
+      // Limpa e prepara o terminal
+      terminal.clear();
+      terminal.writeln('🟢 Shell Docker pronto! Digite comandos abaixo.');
+      
+      // Força foco e ajusta tamanho com um pequeno delay
+      setTimeout(() => {
+        terminal.focus();
+        // Usa fitAddon se disponível
+        if ((terminal as any).fitAddon) {
+          (terminal as any).fitAddon.fit();
+        }
+        terminal.scrollToBottom();
+      }, 100);
+    };
+
+    socketRef.current.on('container-ready', handleShellReady);
+
+    return () => {
+      socketRef.current?.off('container-ready', handleShellReady);
+    };
+  }, [terminal]);
+
+  // Gerenciamento de output do container -> terminal
+  useEffect(() => {
+    if (!socketRef.current || !terminal) return;
+
+    const handleShellOutput = (data: string) => {
+      // Use setTimeout para garantir renderização correta
+      setTimeout(() => {
+        terminal.write(data);
+        setTimeout(() => terminal.scrollToBottom(), 10);
+      }, 0);
+    };
+
+    socketRef.current.on('container-output', handleShellOutput);
+
+    return () => {
+      socketRef.current?.off('container-output', handleShellOutput);
+    };
+  }, [terminal]);
+
+  // Gerenciamento de input do terminal -> container
+  useEffect(() => {
+    if (!terminal) return;
+
+    const handleTerminalInput = (data: string) => {
+      if (isShellReady && socketRef.current) {
+        // Quando shell está pronto, apenas envia ao backend sem eco local
+        // pois o servidor já fará o eco de volta
+        socketRef.current.emit('terminal-input', data);
+      } else {
+        // Echo local APENAS quando shell não está pronto
+        if (data.trim() === 'clear') {
+          terminal.clear();
+        } else {
+          terminal.write(data); // Echo local
+        }
+      }
+    };
+
+    // Registre o handler apenas uma vez e armazene o disposable para limpeza
+    const disposable = terminal.onData(handleTerminalInput);
+    
+    return () => {
+      // Limpe o listener usando o objeto disposable
+      if (disposable && typeof disposable.dispose === 'function') {
+        disposable.dispose();
+      }
+    };
+  }, [terminal, isShellReady]);
+
+  // Ações do usuário
+  const createContainer = useCallback(() => {
+    setContainerStatus({ status: 'starting' });
+    setIsShellReady(false);
+    terminal?.clear();
+    terminal?.writeln('⏳ Inicializando container Docker Ubuntu + Kubernetes...');
+    socketRef.current?.emit('create-container');
+  }, [terminal]);
+
+  // Função para parar container
+  const stopContainer = useCallback(() => {
+    setContainerStatus({ status: 'stopped' });
+    setIsShellReady(false);
+    socketRef.current?.emit('stop-container');
+    terminal?.writeln('🛑 Container parado.');
+  }, [terminal]);
 
   return {
     containerStatus,
     createContainer,
-    stopContainer
+    stopContainer,
+    isShellReady,
   };
 };
