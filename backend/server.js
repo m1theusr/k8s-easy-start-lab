@@ -4,6 +4,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const Docker = require('dockerode');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const { spawn } = require('child_process');
 
 // Configuração do Servidor
 const app = express();
@@ -35,14 +37,32 @@ const CONTAINER_CONFIG = {
   sessionExpiry: 3600000 // 60 minutos para expiração da sessão
 };
 
-// Utilitário para garantir que a imagem existe
-async function ensureImage(image) {
-  try {
-    await docker.getImage(image).inspect();
+// Utilitário para garantir que a imagem existe ou criar se necessário
+async function ensureDockerImage(imageName) {
+  const images = await docker.listImages();
+  const exists = images.some(img => (img.RepoTags || []).includes(imageName + ':latest'));
+  if (exists) {
+    console.log(`[DOCKER] Imagem '${imageName}' já existe.`);
     return true;
-  } catch {
-    return false;
   }
+  // Buildar imagem se não existir
+  console.log(`[DOCKER] Imagem '${imageName}' não encontrada. Buildando a partir de backend/dockerfile...`);
+  await new Promise((resolve, reject) => {
+    const dockerfilePath = path.join(__dirname, 'dockerfile');
+    const build = spawn('docker', ['build', '-t', imageName, '-f', dockerfilePath, '.'], {
+      cwd: __dirname,
+      stdio: 'inherit'
+    });
+    build.on('close', (code) => {
+      if (code === 0) {
+        console.log(`[DOCKER] Build da imagem '${imageName}' concluído.`);
+        resolve();
+      } else {
+        reject(new Error(`[DOCKER] Falha ao buildar a imagem '${imageName}'. Código: ${code}`));
+      }
+    });
+  });
+  return true;
 }
 
 // Verificação periódica de containers inativos
@@ -260,7 +280,7 @@ io.on('connection', (socket) => {
     socket.emit('container-status', 'starting');
     
     // Verifica se a imagem existe
-    const hasImage = await ensureImage(image);
+    const hasImage = await ensureDockerImage(image);
     console.log(`[DOCKER] Verificando imagem '${image}':`, hasImage ? 'ENCONTRADA' : 'NÃO ENCONTRADA');
     
     if (!hasImage) {
@@ -379,15 +399,22 @@ io.on('connection', (socket) => {
   // Limpa recursos quando usuário desconecta
   socket.on('disconnect', async () => {
     console.log(`[SOCKET.IO] Cliente desconectado: ${socketId} (ID persistente: ${persistentId})`);
-    
-    // Não limpa o container na desconexão, apenas grava o tempo
     if (userContainers.has(persistentId)) {
-      // Mantemos o registro para limpeza de inatividade posterior
       userContainers.get(persistentId).lastActivity = Date.now();
       console.log(`[INFO] Container do usuário ${persistentId} ficará disponível por 60 minutos`);
     }
   });
 });
 
-// Inicialização do servidor
-server.listen(3001, () => console.log('Backend socket ouvindo em porta :3001'));
+// Antes de iniciar o servidor, garanta que a imagem Docker existe
+(async () => {
+  try {
+    await ensureDockerImage('ubuntu-k8s');
+    server.listen(3001, () => {
+      console.log('Backend socket ouvindo em porta :3001');
+    });
+  } catch (err) {
+    console.error('[DOCKER] Erro ao garantir imagem ubuntu-k8s:', err);
+    process.exit(1);
+  }
+})();
